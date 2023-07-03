@@ -4,19 +4,19 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public')); // To serve your frontend static files
 
 // HTML routes
-app.get('/notes', (req, res) => res.sendFile(path.join(__dirname, '/public/notes.html')));
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, '/public/index.html')));
+app.get('/notes', (req, res) => res.sendFile(path.join(__dirname, 'public', 'notes.html')));
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 // API routes
 app.get('/api/notes', (req, res) => {
-  fs.readFile('./db/db.json', 'utf8', (err, data) => {
+  fs.readFile(path.join(__dirname, 'db', 'db.json'), 'utf8', (err, data) => {
     if (err) {
       console.error(err);
       return res.status(500).end();
@@ -30,7 +30,7 @@ app.post('/api/notes', (req, res) => {
   const newNote = req.body;
   newNote.id = uuidv4(); // assign a unique id to the new note
 
-  fs.readFile('./db/db.json', 'utf8', (err, data) => {
+  fs.readFile(path.join(__dirname, 'db', 'db.json'), 'utf8', (err, data) => {
     if (err) {
       console.error(err);
       return res.status(500).end();
@@ -39,7 +39,7 @@ app.post('/api/notes', (req, res) => {
     const notes = JSON.parse(data);
     notes.push(newNote);
 
-    fs.writeFile('./db/db.json', JSON.stringify(notes), (err) => {
+    fs.writeFile(path.join(__dirname, 'db', 'db.json'), JSON.stringify(notes), (err) => {
       if (err) {
         console.error(err);
         return res.status(500).end();
@@ -53,7 +53,7 @@ app.post('/api/notes', (req, res) => {
 app.delete('/api/notes/:id', (req, res) => {
   const noteId = req.params.id;
 
-  fs.readFile('./db/db.json', 'utf8', (err, data) => {
+  fs.readFile(path.join(__dirname, 'db', 'db.json'), 'utf8', (err, data) => {
     if (err) {
       console.error(err);
       return res.status(500).end();
@@ -62,7 +62,7 @@ app.delete('/api/notes/:id', (req, res) => {
     let notes = JSON.parse(data);
     notes = notes.filter(note => note.id !== noteId); // remove the note with the given id
 
-    fs.writeFile('./db/db.json', JSON.stringify(notes), (err) => {
+    fs.writeFile(path.join(__dirname, 'db', 'db.json'), JSON.stringify(notes), (err) => {
       if (err) {
         console.error(err);
         return res.status(500).end();
